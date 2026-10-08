@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ponto Q</title>
+<meta name="description" content="Calcula o ponto Q de um transistor NPN com polarização por divisor de tensão, com o passo a passo da resolução.">
+<meta name="theme-color" content="#F7A3C2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C1217" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Ponto Q">
+<style>
+@font-face{font-family:"Fredoka";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/fredoka-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"Fredoka";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/fredoka-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"Fredoka";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/fredoka-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/ibm-plex-sans-latin-600-normal.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2")}
+@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/ibm-plex-mono-latin-600-normal.woff2") format("woff2")}
+html{-webkit-text-size-adjust:100%;color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;-webkit-tap-highlight-color:transparent}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: phone-first single column (circuito → valores → multímetro → passo a passo → reta de carga); duas colunas a partir de 900px. Tema rosa com lacinhos. */
+:root{
+  --bg:#FCEFF4; --surface:#FFF9FB; --ink:#2B1621; --muted:#7D5A6B; --line:#F0D2DE;
+  --accent:#F7A3C2; --on-accent:#2B1621; --copper:#C2185B;
+  --bow:#EC5F95; --bow-dark:#C23B72;
+  --lcd:#FCE3EC; --lcd-ink:#3A0F26; --lcd-dim:#8E5C74;
+  --ok:#2B7A52; --warn:#C0410F;
+  --f-display:"Fredoka","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1C1217; --surface:#271A21; --ink:#F8E7EE; --muted:#C9A3B4; --line:#3F2933;
+    --accent:#F48FB6; --on-accent:#2A0D1B; --copper:#FF8DB9;
+    --bow:#FF6FA6; --bow-dark:#D84682;
+    --lcd:#3A1F2C; --lcd-ink:#FFD6E5; --lcd-dim:#C08CA2;
+    --ok:#7FD9A8; --warn:#FFA36B; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1C1217; --surface:#271A21; --ink:#F8E7EE; --muted:#C9A3B4; --line:#3F2933;
+  --accent:#F48FB6; --on-accent:#2A0D1B; --copper:#FF8DB9;
+  --bow:#FF6FA6; --bow-dark:#D84682;
+  --lcd:#3A1F2C; --lcd-ink:#FFD6E5; --lcd-dim:#C08CA2;
+  --ok:#7FD9A8; --warn:#FFA36B; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background-color:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='132'%3E%3Cg fill='%23EC5F95' fill-opacity='.12'%3E%3Cpath id='b' transform='translate(14 18) scale(.42)' d='M32 20C22 6 6 4 6 16C6 28 22 28 32 22ZM32 20C42 6 58 4 58 16C58 28 42 28 32 22ZM29 23L20 43L25.5 40.5L28 46L32 25ZM35 23L44 43L38.5 40.5L36 46L32 25ZM31 14h2a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4Z'/%3E%3Cpath transform='translate(78 78) rotate(-16) scale(.34)' d='M32 20C22 6 6 4 6 16C6 28 22 28 32 22ZM32 20C42 6 58 4 58 16C58 28 42 28 32 22ZM29 23L20 43L25.5 40.5L28 46L32 25ZM35 23L44 43L38.5 40.5L36 46L32 25ZM31 14h2a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4v-4a4 4 0 0 1 4-4Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:132px 132px}
+.bow{display:inline-block;flex:0 0 auto;overflow:visible}
+.bow-s{width:24px;height:18px}
+sub{font-size:.72em;line-height:0}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.wrap{max-width:1120px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.install-box{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.install{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:9px 16px;font-family:var(--f-display);font-weight:600;font-size:16px;cursor:pointer}
+.install .bow{width:24px;height:18px}
+.ioshint{margin:0;font-size:13px;color:var(--muted);max-width:40ch}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 24px;margin-bottom:18px}
+.eyebrow{font-family:var(--f-display);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:50px;line-height:1;margin:10px 0 0;letter-spacing:-.01em}
+h1 .q{position:relative;display:inline-block;background:var(--accent);color:var(--on-accent);padding:0 .18em;border-radius:12px;margin-left:.04em}
+h1 .q .bow{position:absolute;width:40px;height:30px;top:-17px;right:-20px;transform:rotate(16deg)}
+.lede{margin:0;max-width:46ch;color:var(--muted);font-size:14px}
+
+.layout{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.layout{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.ph h2{display:flex;align-items:center;gap:6px;font-family:var(--f-display);font-weight:600;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0}
+.hint{font-size:12px;color:var(--muted)}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500;cursor:pointer}
+.ghost:hover{border-color:var(--ink)}
+.note{margin:-4px 0 12px;font-size:13px;color:var(--muted)}
+
+/* esquema */
+.sch{display:block;width:100%;max-width:440px;height:auto;margin:0 auto}
+.sch .w{stroke:var(--ink);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sch .thick{stroke-width:4;stroke-linecap:butt}
+.sch .dot,.sch .arrow{fill:var(--ink)}
+.sch text{font-family:var(--f-mono);font-size:11px;fill:var(--ink)}
+.sch .ss{font-size:8px}
+.sch .lbl{font-weight:600}
+.sch .vt{fill:var(--muted)}
+.sch .tag rect{fill:var(--accent)}
+.sch .tag text{fill:var(--on-accent);font-weight:600}
+.sch .cur{stroke:var(--copper);stroke-width:1.5;fill:none}
+.sch .curh,.sch .cur-t{fill:var(--copper)}
+
+/* campos */
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
+.field{min-width:0}
+.field.wide{grid-column:1/-1}
+.field label{display:block;font-family:var(--f-mono);font-weight:600;font-size:14px;margin-bottom:4px}
+.field label .ld{font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--muted);margin-left:4px}
+.ctl{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:12px;background:var(--bg);overflow:hidden}
+.ctl:focus-within{border-color:var(--ink)}
+.ctl input{flex:1 1 auto;min-width:0;width:100%;border:0;background:transparent;font-family:var(--f-mono);font-weight:500;font-size:16px;padding:9px 10px;font-variant-numeric:tabular-nums}
+.ctl input:focus{outline:none}
+.ctl select,.ctl .unit{flex:0 0 auto;border:0;border-left:1px solid var(--line);background:var(--surface);font-family:var(--f-mono);font-size:14px;padding:0 8px}
+.ctl select{cursor:pointer}
+.ctl .unit{display:flex;align-items:center;color:var(--muted)}
+.field.bad .ctl{border-color:var(--warn)}
+.err{font-size:12px;color:var(--warn);margin-top:4px}
+.err:empty{display:none}
+.bands{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;margin-top:6px;min-height:16px}
+.rz{display:inline-flex;align-items:center}
+.rz::before,.rz::after{content:"";width:8px;height:2px;background:var(--muted)}
+.rbody{display:inline-flex;align-items:stretch;gap:3px;height:14px;padding:0 7px;border-radius:7px;background:#F7C6D8;box-shadow:inset 0 0 0 1px rgba(0,0,0,.22)}
+.rbody i{display:block;width:4px}
+.rbody i.tol{margin-left:5px}
+.bn{font-size:11px;color:var(--muted);line-height:1.3}
+.vbe-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.vbe-row .ctl{flex:1 1 140px}
+.chip-btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-family:var(--f-mono);font-size:13px;cursor:pointer}
+.chip-btn[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+/* multímetro */
+.meter{position:relative;background:var(--accent);border-radius:24px;padding:34px 12px 12px;margin-top:18px}
+.meter>.bow{position:absolute;width:76px;height:57px;top:-24px;left:50%;transform:translateX(-50%)}
+.meter-cap{display:flex;justify-content:space-between;gap:8px;font-family:var(--f-display);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--on-accent);margin:0 4px 8px}
+.lcd{background:var(--lcd);color:var(--lcd-ink);border-radius:14px;padding:12px 14px;box-shadow:inset 0 2px 0 rgba(0,0,0,.12)}
+.lcd-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12px;color:var(--lcd-dim)}
+.chip{font-family:var(--f-mono);font-weight:600;font-size:12px;padding:1px 8px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.chip.ativa{color:var(--ok)} .chip.sat{color:var(--warn)} .chip.corte{color:var(--lcd-dim)}
+.reads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;margin-top:10px}
+@media (min-width:480px){.reads{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.read{min-width:0}
+.read .k{font-family:var(--f-mono);font-size:12px;color:var(--lcd-dim)}
+.read .v{font-family:var(--f-mono);font-weight:600;font-size:24px;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.read .v small{font-size:13px;font-weight:500;margin-left:4px}
+.read.flag .v{color:var(--warn)}
+.qline{margin-top:12px;padding-top:8px;border-top:1px dashed var(--lcd-dim);font-family:var(--f-mono);font-size:13px}
+.keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.key{border:2px solid var(--on-accent);background:transparent;color:var(--on-accent);border-radius:999px;padding:7px 10px;font-family:var(--f-display);font-weight:700;font-size:16px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.key[aria-pressed="true"]{background:var(--on-accent);color:var(--accent)}
+.key:focus-visible{outline:3px solid var(--on-accent);outline-offset:2px}
+
+/* verificação e passos */
+.eq{font-family:var(--f-mono);font-size:14.5px;line-height:1.9;font-variant-numeric:tabular-nums;white-space:nowrap;overflow-x:auto;overflow-y:hidden;padding-block:1px}
+.eq.num{color:var(--muted)}
+.eq.res{font-weight:600}
+.eq.extra{white-space:normal;font-size:13px;color:var(--muted);line-height:1.7}
+.val{background:var(--accent);color:var(--on-accent);padding:1px 6px;border-radius:4px}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.35;margin:0 2px}
+.frac>span{padding:0 4px;white-space:nowrap}
+.frac>.den{border-top:1.5px solid currentColor}
+.verdict{margin:10px 0 0;font-size:14px}
+.verdict b.yes{color:var(--ok)} .verdict b.no{color:var(--warn)}
+.cmp{margin:8px 0 0;font-size:13px;color:var(--muted)}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-weight:500}
+
+.steps{list-style:none;margin:0;padding:0}
+.step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;padding-block:14px;border-top:1px solid var(--line)}
+.step:first-child{border-top:0;padding-top:2px}
+.n{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:13px}
+.step.cut .n{background:var(--warn);border-color:var(--warn);color:var(--surface)}
+.sb{min-width:0}
+.sb h3{margin:2px 0 2px;font-size:16px;font-weight:600}
+.why{margin:0 0 6px;color:var(--muted);font-size:14px;max-width:62ch}
+.copyok{font-size:12px;color:var(--ok)}
+#copybox{width:100%;min-height:160px;margin-top:10px;font-family:var(--f-mono);font-size:12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+
+/* reta de carga */
+.ll{display:block;width:100%;height:auto}
+.ll text{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted)}
+.ll .ss{font-size:7.5px}
+.ll .gr{stroke:var(--line);stroke-width:1}
+.ll .ax{stroke:var(--muted);stroke-width:1.2}
+.ll .lnl{stroke:var(--ink);stroke-width:2}
+.ll .end{fill:var(--ink)}
+.ll .proj{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.ll .qp{fill:var(--accent);stroke:var(--ink);stroke-width:2}
+.ll .qt{fill:var(--ink);font-weight:600;font-size:12px}
+.cap{margin:8px 0 0;font-size:13px;color:var(--muted);line-height:1.7}
+.foot{margin-top:20px;font-size:12px;color:var(--muted);max-width:70ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="bow" viewBox="0 0 64 48">
+    <path style="fill:var(--bow-dark)" d="M29 23L20 43L25.5 40.5L28 46L32 25ZM35 23L44 43L38.5 40.5L36 46L32 25Z"/>
+    <path style="fill:var(--bow)" d="M32 20C22 6 6 4 6 16C6 28 22 28 32 22ZM32 20C42 6 58 4 58 16C58 28 42 28 32 22Z"/>
+    <path style="fill:none;stroke:var(--bow-dark);stroke-width:2.2;stroke-linecap:round" d="M28 18.5C21 11.5 13 11 11.5 16M36 18.5C43 11.5 51 11 52.5 16"/>
+    <rect x="27" y="14" width="10" height="12" rx="4" style="fill:var(--bow-dark)"/>
+  </symbol>
+</svg>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">TBJ NPN · polarização por divisor de tensão</div>
+      <h1>Ponto <span class="q">Q<svg class="bow" viewBox="0 0 64 48" aria-hidden="true"><use href="#bow"/></svg></span></h1>
+    </div>
+    <p class="lede">Digite os valores do circuito. O app calcula V<sub>B</sub>, V<sub>E</sub>, I<sub>E</sub>, V<sub>C</sub> e V<sub>CE</sub> e mostra cada passo da resolução.</p>
+    <div class="install-box">
+      <button type="button" class="install" id="install" hidden><svg class="bow" viewBox="0 0 64 48" aria-hidden="true"><use href="#bow"/></svg>Instalar app</button>
+      <p class="ioshint" id="ioshint" hidden>Para instalar no iPhone: toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.</p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="col">
+      <section class="panel" aria-labelledby="h-circ">
+        <div class="ph"><h2 id="h-circ"><svg class="bow bow-s" viewBox="0 0 64 48" aria-hidden="true"><use href="#bow"/></svg>Circuito</h2><span class="hint">tensões medidas em relação ao terra</span></div>
+        <svg id="sch" class="sch" viewBox="0 0 330 304" role="img" aria-label="Esquema do circuito de polarização por divisor de tensão com as tensões calculadas"></svg>
+      </section>
+
+      <section class="panel" aria-labelledby="h-vals">
+        <div class="ph"><h2 id="h-vals"><svg class="bow bow-s" viewBox="0 0 64 48" aria-hidden="true"><use href="#bow"/></svg>Valores</h2><button type="button" class="ghost" id="reset">Restaurar exemplo</button></div>
+        <p class="note" id="exnote">Valores de exemplo. Troque pelos do seu circuito. Aceita vírgula e notação como 3k9.</p>
+        <div class="fields">
+          <div class="field" id="f-vcc">
+            <label for="vcc">V<sub>CC</sub> <span class="ld">fonte</span></label>
+            <div class="ctl"><input id="vcc" inputmode="decimal" autocomplete="off" spellcheck="false"><span class="unit">V</span></div>
+            <div class="err" id="vccE"></div>
+          </div>
+          <div class="field" id="f-beta">
+            <label for="beta">β <span class="ld">ganho (h<sub>FE</sub>)</span></label>
+            <div class="ctl"><input id="beta" inputmode="decimal" autocomplete="off" spellcheck="false"></div>
+            <div class="err" id="betaE"></div>
+          </div>
+          <div class="field" id="f-r1">
+            <label for="r1">R<sub>1</sub> <span class="ld">divisor, em cima</span></label>
+            <div class="ctl"><input id="r1" inputmode="decimal" autocomplete="off" spellcheck="false"><select id="r1u" aria-label="Unidade de R1"><option value="">Ω</option><option value="k">kΩ</option><option value="M">MΩ</option></select></div>
+            <div class="err" id="r1E"></div><div class="bands" id="r1b"></div>
+          </div>
+          <div class="field" id="f-rc">
+            <label for="rc">R<sub>C</sub> <span class="ld">coletor</span></label>
+            <div class="ctl"><input id="rc" inputmode="decimal" autocomplete="off" spellcheck="false"><select id="rcu" aria-label="Unidade de RC"><option value="">Ω</option><option value="k">kΩ</option><option value="M">MΩ</option></select></div>
+            <div class="err" id="rcE"></div><div class="bands" id="rcb"></div>
+          </div>
+          <div class="field" id="f-r2">
+            <label for="r2">R<sub>2</sub> <span class="ld">divisor, embaixo</span></label>
+            <div class="ctl"><input id="r2" inputmode="decimal" autocomplete="off" spellcheck="false"><select id="r2u" aria-label="Unidade de R2"><option value="">Ω</option><option value="k">kΩ</option><option value="M">MΩ</option></select></div>
+            <div class="err" id="r2E"></div><div class="bands" id="r2b"></div>
+          </div>
+          <div class="field" id="f-re">
+            <label for="re">R<sub>E</sub> <span class="ld">emissor</span></label>
+            <div class="ctl"><input id="re" inputmode="decimal" autocomplete="off" spellcheck="false"><select id="reu" aria-label="Unidade de RE"><option value="">Ω</option><option value="k">kΩ</option><option value="M">MΩ</option></select></div>
+            <div class="err" id="reE"></div><div class="bands" id="reb"></div>
+          </div>
+          <div class="field wide" id="f-vbe">
+            <label for="vbe">V<sub>BE</sub> <span class="ld">queda na junção base-emissor</span></label>
+            <div class="vbe-row">
+              <div class="ctl"><input id="vbe" inputmode="decimal" autocomplete="off" spellcheck="false"><span class="unit">V</span></div>
+              <button type="button" class="chip-btn" data-vbe="0,7" aria-pressed="false">Si 0,7</button>
+              <button type="button" class="chip-btn" data-vbe="0,3" aria-pressed="false">Ge 0,3</button>
+            </div>
+            <div class="err" id="vbeE"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="meter" aria-label="Resultado">
+        <svg class="bow" viewBox="0 0 64 48" aria-hidden="true"><use href="#bow"/></svg>
+        <div class="meter-cap"><span>Ponto de operação</span><span id="mname">Aproximada</span></div>
+        <div class="lcd" aria-live="polite">
+          <div class="lcd-top"><span>DC · NPN</span><span class="chip ativa" id="chip">Região ativa</span></div>
+          <div class="reads" id="reads"></div>
+          <div class="qline" id="qline"></div>
+        </div>
+        <div class="keys" role="group" aria-label="Método de análise">
+          <button type="button" class="key" data-mode="aprox" aria-pressed="true">Aproximada</button>
+          <button type="button" class="key" data-mode="exata" aria-pressed="false">Exata</button>
+        </div>
+      </section>
+
+      <section class="panel" id="checkp" aria-labelledby="h-chk">
+        <div class="ph"><h2 id="h-chk"><svg class="bow bow-s" viewBox="0 0 64 48" aria-hidden="true"><use href="#bow"/></svg>Posso usar a aproximação?</h2></div>
+        <div id="check"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-steps">
+        <div class="ph"><h2 id="h-steps"><svg class="bow bow-s" viewBox="0 0 64 48" aria-hidden="true"><use href="#bow"/></svg><span id="h-steps-t">Passo a passo</span></h2><span><span class="copyok" id="copyok" aria-live="polite"></span> <button type="button" class="ghost" id="copy">Copiar resolução</button></span></div>
+        <ol class="steps" id="steps"></ol>
+        <textarea id="copybox" readonly hidden aria-label="Resolução em texto"></textarea>
+      </section>
+
+      <section class="panel" aria-labelledby="h-ll">
+        <div class="ph"><h2 id="h-ll"><svg class="bow bow-s" viewBox="0 0 64 48" aria-hidden="true"><use href="#bow"/></svg>Reta de carga CC</h2></div>
+        <svg id="ll" class="ll" viewBox="0 0 360 232" role="img" aria-label="Reta de carga com o ponto Q"></svg>
+        <p class="cap" id="llcap"></p>
+      </section>
+    </div>
+  </div>
+
+  <p class="foot">Modelo usado: transistor NPN na região ativa, V<sub>CE(sat)</sub> ≈ 0,2 V. Resultados com 4 algarismos significativos. Funciona sem internet depois de instalado. As cores dos resistores seguem o código de 4 faixas (5% de tolerância) ou de 5 faixas quando o valor tem 3 dígitos.</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var DEF={vcc:"22",beta:"100",r1:"39",r1u:"k",r2:"3,9",r2u:"k",rc:"10",rcu:"k",re:"1,5",reu:"k",vbe:"0,7",mode:"aprox"};
+  var KEY="pontoq-v1";
+  var IDS=["vcc","beta","r1","r1u","r2","r2u","rc","rcu","re","reu","vbe"];
+  var VCESAT=0.2, NB=" ";
+  var mode="aprox", lastSteps=null, lastS=null;
+  function $(s){return document.querySelector(s);}
+  function el(id){return document.getElementById(id);}
+
+  /* ---------- estado ---------- */
+  function load(){var st=null;try{st=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}return Object.assign({},DEF,st||{});}
+  function save(st){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+  function apply(st){IDS.forEach(function(id){if(st[id]!=null)el(id).value=st[id];});mode=st.mode==="exata"?"exata":"aprox";}
+  function current(){var st={};IDS.forEach(function(id){st[id]=el(id).value;});st.mode=mode;return st;}
+
+  /* ---------- números ---------- */
+  function parseNum(raw){
+    var s=String(raw==null?"":raw).trim().replace(/\s+/g,"").replace(/(Ω|ohms?|v)$/i,"");
+    if(!s)return{empty:true};
+    var suffix=null,m=s.match(/^(\d+)([kKM])(\d+)$/);
+    if(m){s=m[1]+"."+m[3];suffix=m[2];}
+    else{var last=s.slice(-1);if(/[kKM]/.test(last)){suffix=last;s=s.slice(0,-1);}}
+    s=s.replace(",",".");
+    if(!/^[+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i.test(s))return{bad:true};
+    var v=parseFloat(s);if(suffix)v*=suffix==="M"?1e6:1e3;
+    return{v:v,suffix:!!suffix};
+  }
+  function num(x,sig){
+    sig=sig||4;if(!isFinite(x))return"—";if(Math.abs(x)<1e-15)return"0";
+    var s=String(parseFloat(x.toPrecision(sig)));
+    if(s.indexOf("e")>=0)s=x.toPrecision(sig);
+    return s.replace("-","−").replace(".",",");
+  }
+  function fV(x){return(Math.abs(x)>=0.01||x===0)?num(x)+NB+"V":num(x*1e3)+NB+"mV";}
+  function fI(x){var a=Math.abs(x);if(a===0)return"0"+NB+"A";if(a>=1)return num(x)+NB+"A";if(a>=1e-4)return num(x*1e3)+NB+"mA";if(a>=1e-7)return num(x*1e6)+NB+"µA";return num(x*1e9)+NB+"nA";}
+  function fR(x){var a=Math.abs(x);if(a>=1e6)return num(x/1e6)+NB+"MΩ";if(a>=1e3)return num(x/1e3)+NB+"kΩ";return num(x)+NB+"Ω";}
+
+  /* ---------- leitura ---------- */
+  var UM={"":1,"k":1e3,"M":1e6};
+  function pos(v){return v>0?null:"Use um valor maior que zero.";}
+  var SPEC={
+    vcc:[null,pos],
+    beta:[null,function(v){return v>=1?null:"β precisa ser pelo menos 1.";}],
+    r1:["r1u",pos],r2:["r2u",pos],
+    rc:["rcu",function(v){return v>=0?null:"Use zero ou um valor positivo.";}],
+    re:["reu",function(v){return v>0?null:"Nesta configuração R<sub>E</sub> precisa ser maior que zero.";}],
+    vbe:[null,function(v){return(v>=0&&v<=2)?null:"Use um valor entre 0 e 2 V.";}]
+  };
+  function read(){
+    var r={},errs={},k;
+    for(k in SPEC){
+      var p=parseNum(el(k).value),u=SPEC[k][0],e=null,v;
+      if(p.empty)e="Preencha este campo.";
+      else if(p.bad)e="Não entendi esse número. Ex.: 3,9 ou 3k9.";
+      else{v=p.v;if(u&&!p.suffix)v*=UM[el(u).value];e=SPEC[k][1](v);}
+      if(e)errs[k]=e;else r[k]=v;
+    }
+    return{ok:!Object.keys(errs).length,errs:errs,r:r,
+      p:{Vcc:r.vcc,beta:r.beta,R1:r.r1,R2:r.r2,Rc:r.rc,Re:r.re,Vbe:r.vbe}};
+  }
+
+  /* ---------- cálculo ---------- */
+  function solve(p){
+    var VTh=p.R2*p.Vcc/(p.R1+p.R2), RTh=p.R1*p.R2/(p.R1+p.R2);
+    var a={VB:VTh};a.VE=a.VB-p.Vbe;a.cut=a.VE<=0;
+    if(!a.cut){a.IE=a.VE/p.Re;a.IC=a.IE;a.IB=a.IC/p.beta;a.VC=p.Vcc-a.IC*p.Rc;a.VCE=a.VC-a.VE;}
+    var e={RTh:RTh,ETh:VTh};e.IB=(VTh-p.Vbe)/(RTh+(p.beta+1)*p.Re);e.cut=e.IB<=0;
+    if(!e.cut){e.IC=p.beta*e.IB;e.IE=(p.beta+1)*e.IB;e.VE=e.IE*p.Re;e.VB=e.VE+p.Vbe;e.VC=p.Vcc-e.IC*p.Rc;e.VCE=e.VC-e.VE;}
+    [a,e].forEach(function(m){
+      if(m.cut){m.region="corte";m.final={VB:VTh,VE:0,IE:0,IC:0,IB:0,VC:p.Vcc,VCE:p.Vcc};}
+      else{m.region=m.VCE<=VCESAT?"sat":"ativa";m.final={VB:m.VB,VE:m.VE,IE:m.IE,IC:m.IC,IB:m.IB,VC:m.VC,VCE:m.VCE};}
+    });
+    var chk={bRe:p.beta*p.Re,tenR2:10*p.R2};chk.ok=chk.bRe>=chk.tenR2;
+    return{p:p,a:a,e:e,VTh:VTh,RTh:RTh,ICsat:p.Vcc/(p.Rc+p.Re),chk:chk};
+  }
+  function pick(S){return mode==="aprox"?S.a:S.e;}
+  var REG={ativa:"Região ativa",sat:"Saturação",corte:"Corte"};
+
+  /* ---------- notação ---------- */
+  function sV(s){return"V<sub>"+s+"</sub>";}
+  function sI(s){return"I<sub>"+s+"</sub>";}
+  function sR(s){return"R<sub>"+s+"</sub>";}
+  function fr(a,b){return'<span class="frac"><span class="num">'+a+'</span><span class="den">'+b+"</span></span>";}
+  var DOT=" · ";
+  function arr(x){return x==null?[]:(Array.isArray(x)?x:[x]);}
+
+  function cutStep(S){
+    var p=S.p;
+    return{t:"Transistor em corte",cut:true,
+      why:"A tensão de Thévenin da base ("+fV(S.VTh)+") não passa de "+sV("BE")+" = "+fV(p.Vbe)+", então a junção base-emissor não conduz. Sem corrente: "+sI("E")+" = "+sI("C")+" = 0, "+sV("E")+" = 0 e "+sV("C")+" = "+sV("CE")+" = "+sV("CC")+" = "+fV(p.Vcc)+"."};
+  }
+  function satStep(S,m){
+    return{t:"Transistor saturado",cut:true,
+      why:"O "+sV("CE")+" calculado ("+fV(m.VCE)+") ficou abaixo de uns 0,2 V. Na prática o transistor satura: "+sV("CE")+" ≈ 0,2 V e "+sI("C")+" fica limitada a cerca de "+sV("CC")+"/("+sR("C")+" + "+sR("E")+") = "+fI(S.ICsat)+". Os valores acima não descrevem o circuito real. Para voltar à região ativa, diminua "+sR("C")+" ou a tensão da base."};
+  }
+
+  function stepsAprox(S){
+    var p=S.p,a=S.a,o=[];
+    o.push({t:"Tensão na base",
+      why:"Como β·"+sR("E")+" é grande, a corrente da base é desprezível e "+sR(1)+" e "+sR(2)+" funcionam como um divisor de tensão comum.",
+      gen:sV("B")+" = "+fr(sR(2)+DOT+sV("CC"),sR(1)+" + "+sR(2)),
+      sub:sV("B")+" = "+fr(fR(p.R2)+DOT+fV(p.Vcc),fR(p.R1)+" + "+fR(p.R2)),
+      res:[[sV("B"),fV(a.VB)]]});
+    o.push({t:"Tensão no emissor",
+      why:"A junção base-emissor conduzindo tem uma queda de "+sV("BE")+", então o emissor fica "+sV("BE")+" abaixo da base.",
+      gen:sV("E")+" = "+sV("B")+" − "+sV("BE"),
+      sub:sV("E")+" = "+fV(a.VB)+" − "+fV(p.Vbe),
+      res:[[sV("E"),fV(a.VE)]]});
+    if(a.cut){o.push(cutStep(S));return o;}
+    o.push({t:"Corrente no emissor",
+      why:"Lei de Ohm no resistor do emissor.",
+      gen:sI("E")+" = "+fr(sV("E"),sR("E")),
+      sub:sI("E")+" = "+fr(fV(a.VE),fR(p.Re)),
+      res:[[sI("E"),fI(a.IE)]]});
+    o.push({t:"Corrente no coletor",
+      why:"Com β grande, "+sI("C")+" = α·"+sI("E")+" e α fica muito perto de 1. A corrente da base sai de "+sI("B")+" = "+sI("C")+"/β.",
+      gen:sI("C")+" ≅ "+sI("E"),
+      res:[[sI("C"),fI(a.IC),"≅"]],
+      extra:[sI("B")+" = "+fr(sI("C"),"β")+" = "+fr(fI(a.IC),num(p.beta))+" = "+fI(a.IB)]});
+    o.push({t:"Tensão no coletor",
+      why:"O coletor fica abaixo de "+sV("CC")+" pela queda de tensão em "+sR("C")+".",
+      gen:sV("C")+" = "+sV("CC")+" − "+sI("C")+DOT+sR("C"),
+      sub:sV("C")+" = "+fV(p.Vcc)+" − "+fI(a.IC)+DOT+fR(p.Rc),
+      res:[[sV("C"),fV(a.VC)]]});
+    o.push({t:"Tensão coletor-emissor",
+      why:"É a diferença entre coletor e emissor. Acima de uns 0,2 V o transistor está na região ativa.",
+      gen:sV("CE")+" = "+sV("C")+" − "+sV("E"),
+      sub:sV("CE")+" = "+fV(a.VC)+" − "+fV(a.VE),
+      res:[[sV("CE"),fV(a.VCE)]],
+      extra:["Conferência: "+sV("CE")+" = "+sV("CC")+" − "+sI("C")+"("+sR("C")+" + "+sR("E")+") = "+fV(p.Vcc)+" − "+fI(a.IC)+DOT+"("+fR(p.Rc)+" + "+fR(p.Re)+") = "+fV(p.Vcc-a.IC*(p.Rc+p.Re))]});
+    if(a.region==="sat")o.push(satStep(S,a));
+    return o;
+  }
+
+  function stepsExata(S){
+    var p=S.p,e=S.e,o=[],ETh="E<sub>Th</sub>",RTh="R<sub>Th</sub>";
+    o.push({t:"Resistência de Thévenin",
+      why:"Visto da base, o divisor vira um equivalente de Thévenin. Com "+sV("CC")+" zerada, "+sR(1)+" e "+sR(2)+" ficam em paralelo.",
+      gen:RTh+" = "+sR(1)+" ∥ "+sR(2)+" = "+fr(sR(1)+DOT+sR(2),sR(1)+" + "+sR(2)),
+      sub:RTh+" = "+fr(fR(p.R1)+DOT+fR(p.R2),fR(p.R1)+" + "+fR(p.R2)),
+      res:[[RTh,fR(e.RTh)]]});
+    o.push({t:"Tensão de Thévenin",
+      why:"É a tensão do divisor em aberto, com a base desconectada.",
+      gen:ETh+" = "+fr(sR(2)+DOT+sV("CC"),sR(1)+" + "+sR(2)),
+      sub:ETh+" = "+fr(fR(p.R2)+DOT+fV(p.Vcc),fR(p.R1)+" + "+fR(p.R2)),
+      res:[[ETh,fV(e.ETh)]]});
+    o.push({t:"Corrente na base",
+      why:"Malha base-emissor: "+ETh+" − "+sI("B")+RTh+" − "+sV("BE")+" − "+sI("E")+sR("E")+" = 0, com "+sI("E")+" = (β + 1)"+sI("B")+".",
+      gen:sI("B")+" = "+fr(ETh+" − "+sV("BE"),RTh+" + (β + 1)"+DOT+sR("E")),
+      sub:sI("B")+" = "+fr(fV(e.ETh)+" − "+fV(p.Vbe),fR(e.RTh)+" + ("+num(p.beta)+" + 1)"+DOT+fR(p.Re)),
+      res:[[sI("B"),fI(e.IB)]]});
+    if(e.cut){o.push(cutStep(S));return o;}
+    o.push({t:"Correntes no coletor e no emissor",
+      why:"Relações do transistor na região ativa.",
+      gen:[sI("C")+" = β"+DOT+sI("B"),sI("E")+" = (β + 1)"+DOT+sI("B")],
+      sub:[sI("C")+" = "+num(p.beta)+DOT+fI(e.IB),sI("E")+" = ("+num(p.beta)+" + 1)"+DOT+fI(e.IB)],
+      res:[[sI("C"),fI(e.IC)],[sI("E"),fI(e.IE)]]});
+    o.push({t:"Tensão no emissor",
+      why:"Lei de Ohm em "+sR("E")+".",
+      gen:sV("E")+" = "+sI("E")+DOT+sR("E"),
+      sub:sV("E")+" = "+fI(e.IE)+DOT+fR(p.Re),
+      res:[[sV("E"),fV(e.VE)]]});
+    o.push({t:"Tensão na base",
+      why:"A base fica "+sV("BE")+" acima do emissor. Repare que "+sV("B")+" sai um pouco menor que "+ETh+" por causa da queda em "+RTh+".",
+      gen:sV("B")+" = "+sV("E")+" + "+sV("BE"),
+      sub:sV("B")+" = "+fV(e.VE)+" + "+fV(p.Vbe),
+      res:[[sV("B"),fV(e.VB)]]});
+    o.push({t:"Tensão no coletor",
+      why:"O coletor fica abaixo de "+sV("CC")+" pela queda de tensão em "+sR("C")+".",
+      gen:sV("C")+" = "+sV("CC")+" − "+sI("C")+DOT+sR("C"),
+      sub:sV("C")+" = "+fV(p.Vcc)+" − "+fI(e.IC)+DOT+fR(p.Rc),
+      res:[[sV("C"),fV(e.VC)]]});
+    o.push({t:"Tensão coletor-emissor",
+      why:"É a diferença entre coletor e emissor. Acima de uns 0,2 V o transistor está na região ativa.",
+      gen:sV("CE")+" = "+sV("C")+" − "+sV("E"),
+      sub:sV("CE")+" = "+fV(e.VC)+" − "+fV(e.VE),
+      res:[[sV("CE"),fV(e.VCE)]],
+      extra:["Conferência: "+sV("CE")+" = "+sV("CC")+" − "+sI("C")+sR("C")+" − "+sI("E")+sR("E")+" = "+fV(p.Vcc)+" − "+fI(e.IC)+DOT+fR(p.Rc)+" − "+fI(e.IE)+DOT+fR(p.Re)+" = "+fV(p.Vcc-e.IC*p.Rc-e.IE*p.Re)]});
+    if(e.region==="sat")o.push(satStep(S,e));
+    return o;
+  }
+
+  function stepsHTML(list){
+    var n=0;
+    return list.map(function(s){
+      var mark=s.cut?"!":String(++n),h='<li class="step'+(s.cut?" cut":"")+'"><span class="n" aria-hidden="true">'+mark+'</span><div class="sb"><h3>'+s.t+'</h3><p class="why">'+s.why+"</p>";
+      arr(s.gen).forEach(function(g){h+='<div class="eq">'+g+"</div>";});
+      arr(s.sub).forEach(function(g){h+='<div class="eq num">'+g+"</div>";});
+      (s.res||[]).forEach(function(r){h+='<div class="eq res">'+r[0]+" "+(r[2]||"=")+' <span class="val">'+r[1]+"</span></div>";});
+      (s.extra||[]).forEach(function(x){h+='<div class="eq extra">'+x+"</div>";});
+      return h+"</div></li>";
+    }).join("");
+  }
+
+  /* ---------- código de cores ---------- */
+  var BC=[["preto","#111111"],["marrom","#7A4A26"],["vermelho","#D23A2E"],["laranja","#EE8A2A"],["amarelo","#F3D21F"],["verde","#2F9A52"],["azul","#2F6BD6"],["violeta","#8B55CF"],["cinza","#8C8C8C"],["branco","#F5F5F5"]];
+  var GOLD=["ouro","#C7A13A"],SILVER=["prata","#B9BEC3"];
+  function bands(R){
+    if(!(R>0))return null;
+    var e=Math.floor(Math.log10(R)+1e-9),d3=Math.round(R/Math.pow(10,e-2));
+    if(d3>=1000){d3=Math.round(d3/10);e++;}
+    var exact=Math.abs(d3*Math.pow(10,e-2)-R)/R<1e-6,digits,mult;
+    if(d3%10===0){digits=[Math.floor(d3/100),Math.floor(d3/10)%10];mult=e-1;}
+    else{digits=[Math.floor(d3/100),Math.floor(d3/10)%10,d3%10];mult=e-2;}
+    if(mult<-2||mult>9)return null;
+    var mc=mult===-1?GOLD:mult===-2?SILVER:BC[mult];
+    return{list:digits.map(function(d){return BC[d];}).concat([mc]),tol:digits.length===2?GOLD:BC[1],approx:!exact};
+  }
+  function renderBands(id,R){
+    var box=el(id+"b");
+    if(R===0){box.innerHTML='<span class="bn">sem resistor</span>';return;}
+    var b=bands(R);if(!b){box.innerHTML="";return;}
+    var names=b.list.map(function(c){return c[0];}).concat(b.tol[0]).join(", ");
+    box.innerHTML='<span class="rz" aria-hidden="true"><span class="rbody">'+b.list.map(function(c){return'<i style="background:'+c[1]+'"></i>';}).join("")+'<i class="tol" style="background:'+b.tol[1]+'"></i></span></span><span class="bn">'+(b.approx?"≈ ":"")+names+"</span>";
+  }
+
+  /* ---------- esquema ---------- */
+  function ln(x1,y1,x2,y2,c){return'<line class="'+(c||"w")+'" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'"/>';}
+  function zz(x,y0,y1){var n=6,h=y1-y0,d="M"+x+" "+y0;for(var k=0;k<n;k++)d+=" L"+(x+(k%2?-7:7))+" "+(y0+(2*k+1)*h/(2*n)).toFixed(1);return'<path class="w" d="'+d+" L"+x+" "+y1+'"/>';}
+  function st(main,sub,rest){return main+'<tspan dy="3" class="ss">'+sub+"</tspan>"+(rest!=null?'<tspan dy="-3">'+rest+"</tspan>":"");}
+  function tag(x,y,main,sub,v,anchor){
+    var w=Math.round(main.length*6.6+sub.length*4.8+(v.length+1)*6.6+12),rx=anchor==="end"?x-w:x;
+    return'<g class="tag"><rect x="'+rx+'" y="'+(y-13)+'" width="'+w+'" height="19" rx="4"/><text x="'+(rx+6)+'" y="'+y+'">'+st(main,sub," "+v)+"</text></g>";
+  }
+  function curArrow(x,y1,y2,main,sub,v){
+    return ln(x,y1,x,y2,"cur")+'<polygon class="curh" points="'+(x-4)+","+(y2-7)+" "+(x+4)+","+(y2-7)+" "+x+","+y2+'"/><text class="cur-t" x="'+(x-6)+'" y="'+((y1+y2)/2+4)+'" text-anchor="end">'+st(main,sub," "+v)+"</text>";
+  }
+  function renderSch(P,S){
+    var r=P.r,f=S?pick(S).final:null,D="—";
+    function R(k){return r[k]!=null?fR(r[k]):D;}
+    var s="";
+    s+='<text class="lbl" x="146" y="17" text-anchor="middle">+'+st("V","CC"," = "+(r.vcc!=null?fV(r.vcc):D))+"</text>";
+    s+=ln(70,30,222,30);
+    // R1 e R2
+    s+=ln(70,30,70,56)+zz(70,56,104)+ln(70,104,70,178)+zz(70,178,226)+ln(70,226,70,276);
+    s+='<text class="lbl" x="56" y="76" text-anchor="end">'+st("R","1")+'</text><text class="vt" x="56" y="90" text-anchor="end">'+R("r1")+"</text>";
+    s+='<text class="lbl" x="56" y="198" text-anchor="end">'+st("R","2")+'</text><text class="vt" x="56" y="212" text-anchor="end">'+R("r2")+"</text>";
+    // RC
+    s+=ln(222,30,222,44)+zz(222,44,92)+ln(222,92,222,120);
+    s+='<text class="lbl" x="236" y="62">'+st("R","C")+'</text><text class="vt" x="236" y="76">'+R("rc")+"</text>";
+    // transistor
+    s+='<circle class="w" cx="200" cy="150" r="26"/>';
+    s+=ln(70,150,188,150)+ln(188,134,188,166,"w thick");
+    s+=ln(188,141,222,120)+ln(188,159,222,180)+ln(222,180,222,210);
+    s+='<polygon class="arrow" points="208.4,171.6 199.2,171.2 204,163.6"/>';
+    s+='<use href="#bow" x="183" y="108" width="26" height="19.5" transform="rotate(-12 196 118)"/>';
+    // RE
+    s+=zz(222,210,258)+ln(222,258,222,276);
+    s+='<text class="lbl" x="236" y="230">'+st("R","E")+'</text><text class="vt" x="236" y="244">'+R("re")+"</text>";
+    // terra
+    s+=ln(70,276,222,276)+ln(146,276,146,284)+ln(134,284,158,284)+ln(139,290,153,290)+ln(144,296,148,296);
+    // nós
+    s+='<circle class="dot" cx="70" cy="150" r="3.5"/><circle class="dot" cx="222" cy="106" r="3.5"/><circle class="dot" cx="222" cy="194" r="3.5"/>';
+    // correntes e tensões
+    s+=curArrow(204,50,78,"I","C",f?fI(f.IC):D);
+    s+=curArrow(204,214,242,"I","E",f?fI(f.IE):D);
+    s+=tag(92,141,"V","B",f?fV(f.VB):D);
+    s+=tag(232,110,"V","C",f?fV(f.VC):D);
+    s+=tag(232,198,"V","E",f?fV(f.VE):D);
+    el("sch").innerHTML=s;
+  }
+
+  /* ---------- multímetro ---------- */
+  function renderLCD(S){
+    var chip=el("chip"),reads=el("reads"),q=el("qline");
+    el("mname").textContent=mode==="aprox"?"Aproximada":"Exata";
+    document.querySelectorAll(".key").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.mode===mode));});
+    var items=[["V","B","VB"],["V","E","VE"],["I","E","IE"],["I","C","IC"],["V","C","VC"],["V","CE","VCE"]];
+    if(!S){
+      chip.className="chip corte";chip.textContent="Sem resultado";
+      reads.innerHTML=items.map(function(it){return'<div class="read"><div class="k">'+it[0]+"<sub>"+it[1]+'</sub></div><div class="v">—</div></div>';}).join("");
+      q.textContent="Corrija os campos marcados em Valores.";return;
+    }
+    var m=pick(S),f=m.final;
+    chip.className="chip "+m.region;chip.textContent=REG[m.region];
+    reads.innerHTML=items.map(function(it){
+      var x=f[it[2]],t=it[0]==="V"?fV(x):fI(x),parts=t.split(NB);
+      var flag=m.region==="sat"&&it[2]==="VCE";
+      return'<div class="read'+(flag?" flag":"")+'"><div class="k">'+it[0]+"<sub>"+it[1]+'</sub></div><div class="v">'+parts[0]+"<small>"+parts[1]+"</small></div></div>";
+    }).join("");
+    q.innerHTML="Q = ("+sV("CEQ")+"; "+sI("CQ")+") = ("+fV(f.VCE)+"; "+fI(f.IC)+")"+(m.region==="sat"?" · fora da região ativa, veja o aviso no passo a passo":"");
+  }
+
+  /* ---------- verificação ---------- */
+  function renderCheck(S){
+    var box=el("check");
+    if(!S){box.innerHTML='<p class="cmp" style="margin:0">Aparece quando todos os valores estiverem válidos.</p>';return;}
+    var p=S.p,c=S.chk,h="";
+    h+='<div class="eq">β'+DOT+sR("E")+" ≥ 10"+DOT+sR(2)+"</div>";
+    h+='<div class="eq num">'+num(p.beta)+DOT+fR(p.Re)+" = "+fR(c.bRe)+" "+(c.ok?"≥":"<")+" 10"+DOT+fR(p.R2)+" = "+fR(c.tenR2)+"</div>";
+    if(c.ok){
+      h+='<p class="verdict"><b class="yes">Sim.</b> '+(mode==="aprox"?"A corrente da base é pequena perto da corrente do divisor, então a análise aproximada vale para este circuito.":"A aproximada também valeria aqui. Você está vendo a análise exata, pelo equivalente de Thévenin.")+"</p>";
+    }else{
+      h+='<p class="verdict"><b class="no">Não.</b> '+(mode==="aprox"?'Com β·R<sub>E</sub> pequeno, a corrente da base pesa no divisor e a aproximada perde precisão. <button type="button" class="linkbtn" data-goto="exata">Ver a análise exata</button>':"Por isso a análise exata, pelo equivalente de Thévenin, é a indicada aqui.")+"</p>";
+    }
+    if(S.a.region!=="corte"&&S.e.region!=="corte"){
+      var d=Math.abs(S.a.VCE-S.e.VCE)/Math.abs(S.e.VCE)*100;
+      h+='<p class="cmp">Comparando os métodos: '+sV("CE")+" = "+fV(S.a.VCE)+" na aproximada e "+fV(S.e.VCE)+" na exata"+(isFinite(d)?" (diferença de "+num(d,2)+"%)":"")+".</p>";
+    }
+    box.innerHTML=h;
+  }
+
+  /* ---------- reta de carga ---------- */
+  function niceStep(max,n){n=n||5;if(!(max>0))return 1;var raw=max/n,mag=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/mag;return(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*mag;}
+  function renderLL(S){
+    var svg=el("ll"),cap=el("llcap");
+    if(!S){svg.innerHTML="";cap.textContent="Corrija os valores para ver a reta de carga.";return;}
+    var p=S.p,m=pick(S),f=m.final,W=360,H=232,L=46,Rp=14,T=18,Bt=40,pw=W-L-Rp,ph=H-T-Bt,isat=S.ICsat;
+    var ys=1e3,yu="mA";if(isat>=1){ys=1;yu="A";}else if(isat<1e-4){ys=1e6;yu="µA";}
+    var xs=niceStep(p.Vcc),xMax=Math.ceil(p.Vcc/xs-1e-9)*xs;
+    var yt=isat*ys,yst=niceStep(yt),yMax=Math.ceil(yt/yst-1e-9)*yst;
+    function X(v){return L+v/xMax*pw;} function Y(i){return T+ph-(i*ys)/yMax*ph;}
+    var s="",k,nx=Math.round(xMax/xs),ny=Math.round(yMax/yst);
+    for(k=0;k<=nx;k++){var x=X(k*xs).toFixed(1);s+='<line class="gr" x1="'+x+'" y1="'+T+'" x2="'+x+'" y2="'+(T+ph)+'"/><text x="'+x+'" y="'+(T+ph+15)+'" text-anchor="middle">'+num(k*xs)+"</text>";}
+    for(k=0;k<=ny;k++){var y=(T+ph-k/ny*ph).toFixed(1);s+='<line class="gr" x1="'+L+'" y1="'+y+'" x2="'+(L+pw)+'" y2="'+y+'"/><text x="'+(L-6)+'" y="'+(+y+3.5).toFixed(1)+'" text-anchor="end">'+num(k*yst)+"</text>";}
+    s+=ln(L,T,L,T+ph,"ax")+ln(L,T+ph,L+pw,T+ph,"ax");
+    s+='<text x="'+(L+pw)+'" y="'+(H-6)+'" text-anchor="end">'+st("V","CE"," (V)")+"</text>";
+    s+='<text x="4" y="11">'+st("I","C"," ("+yu+")")+"</text>";
+    s+=ln(X(0).toFixed(1),Y(isat).toFixed(1),X(p.Vcc).toFixed(1),Y(0).toFixed(1),"lnl");
+    s+='<circle class="end" cx="'+X(0).toFixed(1)+'" cy="'+Y(isat).toFixed(1)+'" r="3"/><circle class="end" cx="'+X(p.Vcc).toFixed(1)+'" cy="'+Y(0).toFixed(1)+'" r="3"/>';
+    var q0,q1;
+    if(m.region==="corte"){q0=p.Vcc;q1=0;}else if(m.region==="sat"){q0=VCESAT;q1=(p.Vcc-VCESAT)/(p.Rc+p.Re);}else{q0=f.VCE;q1=f.IC;}
+    var qx=X(Math.max(0,Math.min(q0,xMax))),qy=Y(Math.max(0,Math.min(q1,yMax/ys)));
+    s+=ln(qx.toFixed(1),qy.toFixed(1),qx.toFixed(1),T+ph,"proj")+ln(L,qy.toFixed(1),qx.toFixed(1),qy.toFixed(1),"proj");
+    s+='<use href="#bow" x="'+(qx-14).toFixed(1)+'" y="'+(qy-8.75).toFixed(1)+'" width="28" height="21"/>';
+    var right=qx+30<L+pw;
+    s+='<text class="qt" x="'+(right?qx+16:qx-12).toFixed(1)+'" y="'+Math.max(T+2,right?qy-9:qy-16).toFixed(1)+'" text-anchor="'+(right?"start":"end")+'">Q</text>';
+    svg.innerHTML=s;
+    cap.innerHTML="Q = ("+fV(q0)+"; "+fI(q1)+")"+(m.region==="sat"?", na saturação":m.region==="corte"?", no corte":"")+". Extremos da reta: "+sI("C(sat)")+" = "+fr(sV("CC"),sR("C")+" + "+sR("E"))+" = "+fI(isat)+" e "+sV("CE(corte)")+" = "+sV("CC")+" = "+fV(p.Vcc)+".";
+  }
+
+  /* ---------- texto para copiar ---------- */
+  function walk(n){var s="";n.childNodes.forEach(function(c){if(c.nodeType===3)s+=c.nodeValue;else if(c.nodeType===1){if(c.classList.contains("frac"))s+="("+walk(c.children[0]).trim()+")/("+walk(c.children[1]).trim()+")";else if(c.tagName==="BUTTON")s+="";else s+=walk(c);}});return s;}
+  function toText(html){var d=document.createElement("div");d.innerHTML=html;return walk(d).replace(/\s+/g," ").trim();}
+  function buildText(S,list){
+    var p=S.p,m=pick(S),f=m.final,n=0;
+    var t="Ponto Q, TBJ NPN com polarização por divisor de tensão (análise "+(mode==="aprox"?"aproximada":"exata")+")\n";
+    t+="Dados: VCC = "+fV(p.Vcc)+"; R1 = "+fR(p.R1)+"; R2 = "+fR(p.R2)+"; RC = "+fR(p.Rc)+"; RE = "+fR(p.Re)+"; β = "+num(p.beta)+"; VBE = "+fV(p.Vbe)+"\n\n";
+    list.forEach(function(s){
+      t+=(s.cut?"!":String(++n))+". "+s.t+"\n";
+      if(s.cut){t+="   "+toText(s.why)+"\n\n";return;}
+      arr(s.gen).concat(arr(s.sub)).forEach(function(g){t+="   "+toText(g)+"\n";});
+      (s.res||[]).forEach(function(r){t+="   "+toText(r[0]+" "+(r[2]||"=")+" "+r[1])+"\n";});
+      (s.extra||[]).forEach(function(x){t+="   "+toText(x)+"\n";});
+      t+="\n";
+    });
+    t+="Ponto Q: VCEQ = "+fV(f.VCE)+"; ICQ = "+fI(f.IC)+" ("+REG[m.region].toLowerCase()+")";
+    return t.replace(/ /g," ").replace(/−/g,"-");
+  }
+
+  /* ---------- ciclo ---------- */
+  function update(){
+    var P=read(),k;
+    for(k in SPEC){var bad=!!P.errs[k];el("f-"+k).classList.toggle("bad",bad);el(k+"E").innerHTML=P.errs[k]||"";}
+    ["r1","r2","rc","re"].forEach(function(id){if(P.r[id]!=null)renderBands(id,P.r[id]);else el(id+"b").innerHTML="";});
+    var vb=parseNum(el("vbe").value);
+    document.querySelectorAll("[data-vbe]").forEach(function(b){var pv=parseNum(b.dataset.vbe);b.setAttribute("aria-pressed",String(!!(vb.v!=null&&Math.abs(vb.v-pv.v)<1e-9)));});
+    var cur=current();save(cur);
+    el("exnote").hidden=!IDS.every(function(id){return cur[id]===DEF[id];});
+    var S=P.ok?solve(P.p):null;lastS=S;
+    renderSch(P,S);renderLCD(S);renderCheck(S);renderLL(S);
+    el("h-steps-t").textContent=mode==="aprox"?"Passo a passo · aproximada":"Passo a passo · exata";
+    if(S){lastSteps=mode==="aprox"?stepsAprox(S):stepsExata(S);el("steps").innerHTML=stepsHTML(lastSteps);el("copy").disabled=false;}
+    else{lastSteps=null;el("steps").innerHTML='<li class="step"><span class="n" aria-hidden="true">–</span><div class="sb"><h3>Aguardando valores</h3><p class="why">Corrija os campos marcados em Valores para ver a resolução.</p></div></li>';el("copy").disabled=true;}
+    el("copybox").hidden=true;el("copyok").textContent="";
+  }
+
+  document.querySelectorAll("input").forEach(function(i){i.addEventListener("input",update);});
+  document.querySelectorAll("select").forEach(function(s){s.addEventListener("change",update);});
+  document.querySelectorAll("[data-vbe]").forEach(function(b){b.addEventListener("click",function(){el("vbe").value=b.dataset.vbe;update();});});
+  document.querySelectorAll(".key").forEach(function(b){b.addEventListener("click",function(){mode=b.dataset.mode;update();});});
+  el("check").addEventListener("click",function(e){var b=e.target.closest("[data-goto]");if(b){mode=b.dataset.goto;update();}});
+  el("reset").addEventListener("click",function(){apply(DEF);update();});
+  el("copy").addEventListener("click",function(){
+    if(!lastS||!lastSteps)return;
+    var txt=buildText(lastS,lastSteps),box=el("copybox"),ok=el("copyok");
+    function fallback(){box.value=txt;box.hidden=false;box.focus();box.select();ok.textContent="Selecione e copie o texto abaixo.";}
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){ok.textContent="Copiado";box.hidden=true;},fallback);}
+      else fallback();
+    }catch(e){fallback();}
+  });
+
+  apply(load());update();
+})();
+</script>
+
+<script>
+(function(){
+  if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){});});}
+  var standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+  if(standalone)return;
+  var btn=document.getElementById("install"),deferred=null;
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e;btn.hidden=false;});
+  btn.addEventListener("click",function(){if(!deferred)return;deferred.prompt();deferred.userChoice.finally(function(){deferred=null;btn.hidden=true;});});
+  window.addEventListener("appinstalled",function(){btn.hidden=true;});
+  var ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(ua.indexOf("Mac")>-1&&"ontouchend" in document);
+  if(ios)document.getElementById("ioshint").hidden=false;
+})();
+</script>
+</body>
+</html>

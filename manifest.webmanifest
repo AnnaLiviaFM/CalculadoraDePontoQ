@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "Ponto Q",
+  "short_name": "Ponto Q",
+  "description": "Calcula o ponto Q de um transistor NPN com polarização por divisor de tensão, com o passo a passo da resolução.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FCEFF4",
+  "theme_color": "#F7A3C2",
+  "categories": ["education", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
